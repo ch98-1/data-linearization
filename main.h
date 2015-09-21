@@ -14,7 +14,7 @@
 #include "corwins.h"
 
 
-//#define FULLLSCREEN //define if fullscreen
+#define FULLLSCREEN //define if fullscreen
 //#define FPS //print out fps
 
 #ifdef FULLLSCREEN
@@ -30,7 +30,7 @@
 
 #define TEXT_INPUT_SHIFT 0 //y shift when inputting text
 
-#define WINDOW_NAME "Trigonometry"
+#define WINDOW_NAME "Data Linearization"
 #define DELAY 10 //default delay
 #define DELAY_SLOW 100 //dealy while in background
 
@@ -109,6 +109,8 @@ SDL_Texture* GetTextTexture(TTF_Font* font, const char* text, int r, int g, int 
 void DrawBase(void);//draw basic stuff
 void DrawText(SDL_Texture *texture, double x, double y, SDL_Rect *rect, int center);//draw rect of texture at x and y position normalised. Null rect for whole texture. set center to 1 to center to x and y. Draws texture at full size
 void DrawTextAngled(SDL_Texture *texture, double x, double y, SDL_Rect *rect, int center, double deg);//draw rect of texture at x and y position normalised. Null rect for whole texture. set center to 1 to center to x and y. Draws texture at full size at an angle
+void DrawTextAngledCentered(SDL_Texture *texture, double x, double y, SDL_Rect *rect, int centerx, int centery, double deg);//draw rect of texture at x and y position normalised. Null rect for whole texture. set center to 1 to center to x and y. Draws texture at full size at an angle
+void DrawTextAngledCenteredEdge(SDL_Texture *texture, double x, double y, SDL_Rect *rect, int centerx, int centery, double deg);//draw rect of texture at x and y position normalised. Null rect for whole texture. set center to 1 to center to x and y. Draws texture at full size at an angle. Use x and y at other side
 void DrawIMG(SDL_Texture *texture, double x, double y, SDL_Rect *rect, double w, double h, int center);//draw rect of texture at x and y position normalised at scale from maxside. Null rect for whole texture. set center to 1 to center to x and y
 void Draw(void);//draw/update screen
 void Graph(char* title, double x, double y, double w, double h, char* xn, char* yn, double* xd, double* yd, int dl, double xp, double yp, int xin, int yin);//draw graph with title starting from x and y position normalised at scale from maxside, and with w and h width and height with data name of xn and yn, and data of xd, and yd with length of dl. data will be modified by raising it to the power of xp and yp and making it inverse if xp or yp is 1.

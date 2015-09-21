@@ -703,11 +703,63 @@ void DrawTextAngled(SDL_Texture *texture, double x, double y, SDL_Rect *rect, in
 
 
 
+void DrawTextAngledCentered(SDL_Texture *texture, double x, double y, SDL_Rect *rect, int centerx, int centery, double deg){//draw rect of texture at x and y position normalised. Null rect for whole texture. set center to 1 to center to x and y. Draws texture at full size at an angle
+	if (texture == NULL) {//if texture passed dosen't exist
+		texture = somethingwentwrong;//set texture to something went wrong
+	}
+	SDL_Rect dest;
+	int w, h, access;//value to fill up
+	long format;
+	SDL_QueryTexture(texture, &format, &access, &w, &h);//get text box size
+	dest.w = (int)w;//set width and height
+	dest.h = (int)h;
+	dest.x = (int)(x * maxside);//set x and y
+	dest.y = (int)(y * maxside);
+
+	if (centerx){
+		dest.x = dest.x - dest.w / 2;//set x and y centered to x and y
+	}
+	if (centery){
+		dest.y = dest.y - dest.h / 2; // set x and y centered to x and y
+	}
+
+	if (deg == 90 || deg == 270){//if sideways
+		dest.y = dest.y - dest.h / 2 + dest.w / 2;//adjust
+	}
+
+	dest.x += XShiftAll * maxside;//shift x and y
+	dest.y += YShiftAll * maxside;
+
+	SDL_RenderCopyEx(renderer, texture, rect, &dest, deg, NULL, SDL_FLIP_NONE);//draw texture
+}
 
 
 
+void DrawTextAngledCenteredEdge(SDL_Texture *texture, double x, double y, SDL_Rect *rect, int centerx, int centery, double deg){//draw rect of texture at x and y position normalised. Null rect for whole texture. set center to 1 to center to x and y. Draws texture at full size at an angle. Use x and y at other side
+if (texture == NULL) {//if texture passed dosen't exist
+	texture = somethingwentwrong;//set texture to something went wrong
+}
+SDL_Rect dest;
+int w, h, access;//value to fill up
+long format;
+SDL_QueryTexture(texture, &format, &access, &w, &h);//get text box size
+dest.w = (int)w;//set width and height
+dest.h = (int)h;
+dest.x = (int)(x * maxside) - w;//set x and y
+dest.y = (int)(y * maxside) - h;
 
+if (centerx){
+	dest.x = dest.x - dest.w / 2;//set x and y centered to x and y
+}
+if (centery){
+	dest.y = dest.y - dest.h / 2; // set x and y centered to x and y
+}
 
+dest.x += XShiftAll * maxside;//shift x and y
+dest.y += YShiftAll * maxside;
+
+SDL_RenderCopyEx(renderer, texture, rect, &dest, deg, NULL, SDL_FLIP_NONE);//draw texture
+}
 
 
 
@@ -811,7 +863,7 @@ void Draw(void){//draw/update screen
 		Ydata[3] = 16;
 		Ydata[4] = 25;
 
-		Graph("hello", 0, 1.0/16 + 1.0/12, ws - (1.0/24), hs - (1.0/16 + 1.0/12), yname, xname, Xdata, Ydata, length, xpow, ypow, xinv, yinv);//test graph
+		Graph("hello", 0, 1.0/16 + 1.0/12, ws - (1.0/24), hs - (1.0/16 + 1.0/12), xname, yname, Xdata, Ydata, length, xpow, ypow, xinv, yinv);//test graph
 
 		displayd = 1;//set displayd
 		SDL_RenderPresent(renderer);//present rendered
@@ -887,10 +939,24 @@ void Graph(const char* title, double x, double y, double w, double h, const char
 		//plot points
 		DrawIMG(PointIMG, (x + 1.0 / 24) + (xdata[i] / maxX) * (w - (1.0 / 24)) , (y + h - (1.0 / 24) * 2) - (ydata[i] / maxY)  * (h - (1.0 / 24) * 3) , NULL, POINT_SIZE, POINT_SIZE, 1);//draw point
 	}
-	sprintf(name, "R^2 = %.5f           %s(%s)^%.0f = %.3f(%s(%s)^%.0f)%+.3f", acc, yin ? "1/" : "", yn, yp, resulta, xin ? "1/" : "", xn, xp, resultb);//format axis name
-	SDL_Texture *Result = GetTextTexture(font_24, name, 0, 0, 0);//name of y axis
-	DrawText(Result, x + 0.5*w, y + h - 1.0 / 24 / 2, NULL, 1);//display name of y axis sideways
+	sprintf(name, "R^2 = %.5f           %s(%s)^%.0f = %.3f(%s(%s)^%.0f)%+.3f", acc, yin ? "1/" : "", yn, yp, resulta, xin ? "1/" : "", xn, xp, resultb);//format equations
+	SDL_Texture *Result = GetTextTexture(font_24, name, 0, 0, 0);//equations
+	DrawText(Result, x + 0.5*w, y + h - 1.0 / 24 / 2, NULL, 1);//display equations
 	SDL_DestroyTexture(Result);//destroy texture
+
+	SDL_Texture *Zero = GetTextTexture(font_24, "0", 0, 0, 0);//zero
+	DrawText(Zero, x + 1.0 / 48, y + h - ((1.0 / 48) * 3), NULL, 1);//display zero
+	SDL_DestroyTexture(Zero);//destroy texture
+
+	sprintf(name, "%.3f", maxX);//format axis value
+	SDL_Texture *XM = GetTextTexture(font_24, name, 0, 0, 0);//x axis value
+	DrawTextAngledCenteredEdge(XM, x + w, y + h - (1.0 / 72) , NULL, 0, 1, 0);//display x axis value
+	SDL_DestroyTexture(XM);//destroy texture
+
+	sprintf(name, "%.3f", maxY);//format axis value
+	SDL_Texture *YM = GetTextTexture(font_24, name, 0, 0, 0);//y axis value
+	DrawTextAngledCentered(YM, x + (1.0 / 24 / 2), (y + 1.0 / 24), NULL, 1, 0, 270);//display y axis value sideways
+	SDL_DestroyTexture(YM);//destroy texture
 }
 
 void Reset(void){//reset data and data manipulator
