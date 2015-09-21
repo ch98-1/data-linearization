@@ -14,7 +14,7 @@
 #include "corwins.h"
 
 
-#define FULLLSCREEN //define if fullscreen
+//#define FULLLSCREEN //define if fullscreen
 //#define FPS //print out fps
 
 #ifdef FULLLSCREEN
@@ -65,7 +65,13 @@ unsigned long int fps;//frames per second
 SDL_Texture *somethingwentwrong;//image to display if something goes wrong
 SDL_Texture *PointIMG;//point image
 
-
+double xpow, ypow;//x and y power
+int xinv, yinv;//x and y inverse
+double *Xdata;//array of x and y data
+double *Ydata;
+int length;//length of data
+char xname[256];//name of x and y data
+char yname[256];
 
 double scale;//scale up or down
 double xshift;//shift in x direction
@@ -106,6 +112,6 @@ void DrawTextAngled(SDL_Texture *texture, double x, double y, SDL_Rect *rect, in
 void DrawIMG(SDL_Texture *texture, double x, double y, SDL_Rect *rect, double w, double h, int center);//draw rect of texture at x and y position normalised at scale from maxside. Null rect for whole texture. set center to 1 to center to x and y
 void Draw(void);//draw/update screen
 void Graph(char* title, double x, double y, double w, double h, char* xn, char* yn, double* xd, double* yd, int dl, double xp, double yp, int xin, int yin);//draw graph with title starting from x and y position normalised at scale from maxside, and with w and h width and height with data name of xn and yn, and data of xd, and yd with length of dl. data will be modified by raising it to the power of xp and yp and making it inverse if xp or yp is 1.
-
+void Reset(void);//reset data and data manipulator
 
 #endif

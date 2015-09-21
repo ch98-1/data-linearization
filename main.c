@@ -86,7 +86,8 @@ int main(int argc, char *argv[]){
 	SDL_DestroyTexture(loading);//don't need this texture
 
 	//set initial values
-	displaymode = DATA;//reset display
+	displaymode = GRAPH;//reset display
+	Reset();//reset graph data
 
 	//load textures
 	PointIMG = GetTexture(POINT);//get point image
@@ -249,11 +250,12 @@ int EventFilter(void* userdata, SDL_Event* e){//event filter
 
 void Quit(void){//quit everything
 	//destroy textures
+	SDL_DestroyTexture(PointIMG);
 
 
 
-
-
+	free(Xdata);//free data
+	free(Ydata);
 
 
 
@@ -340,8 +342,22 @@ void GetDisplay(void){//get display
 
 
 void Clicked(void){//x and y positions clicked
+	switch (displaymode){//switch for each thing to display
+	case DATA:
 
-	
+		break;
+	case GRAPH:
+		if (MouseY < 1.0 / 16){//if click is high enough
+			if (MouseX < 0.12*ws){//if clicked back
+				displaymode = DATA;//go back to data
+				displayd = 0;
+				break;
+			}
+			
+		}
+		displayd = 0;
+		break;
+	}
 	return;//exit function
 }
 
@@ -692,7 +708,7 @@ void DrawIMG(SDL_Texture *texture, double x, double y, SDL_Rect *rect, double w,
 
 void Draw(void){//draw/update screen
 	SDL_Texture *Buttons;//button text
-	char string[1024];//string to fill
+	char string[2048];//string to fill
 	int i;
 	switch (displaymode){//switch for each thing to display
 	case DATA:
@@ -700,10 +716,6 @@ void Draw(void){//draw/update screen
 		SDL_SetRenderDrawColor(renderer, 255, 255, 255, 255);//draw white
 		SDL_RenderClear(renderer);//clear screen
 		DrawBase();//draw background image
-
-		double x[5] = { 1, 2, 3, 4, 5 };
-		double y[5] = { 1, 4, 9, 16, 25 };
-		Graph("hello", 0, 0, ws, hs, "X", "Y", x, y, 5, 2, 1, 0, 0);//test graph
 
 		displayd = 1;//set displayd
 		SDL_RenderPresent(renderer);//present rendered
@@ -714,6 +726,60 @@ void Draw(void){//draw/update screen
 		SDL_RenderClear(renderer);//clear screen
 		DrawBase();//draw background image
 		
+		sprintf(string, "Back");//back button
+		SDL_Texture *Back = GetTextTexture(font_16, string, 0, 0, 0);//Back button
+		DrawText(Back, 0.08*ws, 1.0 / 32, NULL, 1);//display Back button
+		SDL_DestroyTexture(Back);//destroy texture
+
+
+		sprintf(string, "^");//format axis manipulator
+		SDL_Texture *XU = GetTextTexture(font_24, string, 0, 0, 0);//x axis manipulator
+		DrawTextAngled(XU, 0.3*ws, 1.0 / 48, NULL, 1, 0);//display x axis manipulator
+		SDL_DestroyTexture(XU);//destroy texture
+
+		sprintf(string, "^");//format axis manipulator
+		SDL_Texture *XD = GetTextTexture(font_24, string, 0, 0, 0);//x axis manipulator
+		DrawTextAngled(XD, 0.3*ws, 1.0 / 24 + 1.0/16 + 1.0 / 48, NULL, 1, 180);//display x axis manipulator
+		SDL_DestroyTexture(XD);//destroy texture
+
+		sprintf(string, "^");//format axis manipulator
+		SDL_Texture *YU = GetTextTexture(font_24, string, 0, 0, 0);//y axis manipulator
+		DrawTextAngled(YU, 0.8*ws, 1.0 / 48, NULL, 1, 0);//display y axis manipulator
+		SDL_DestroyTexture(YU);//destroy texture
+
+		sprintf(string, "^");//format axis manipulator
+		SDL_Texture *YD = GetTextTexture(font_24, string, 0, 0, 0);//y axis manipulator
+		DrawTextAngled(YD, 0.8*ws, 1.0 / 24 + 1.0 / 16 + 1.0 / 48, NULL, 1, 180);//display y axis manipulator
+		SDL_DestroyTexture(YD);//destroy texture
+
+		sprintf(string, "%s(%s)^%.0f", xinv ? "1/" : "", xname, xpow);//format axis manipulator
+		SDL_Texture *Xdisplay = GetTextTexture(font_16, string, 0, 0, 0);//x axis manipulator
+		DrawText(Xdisplay, 0.3*ws, 1.0 / 36 + 1.0 / 24, NULL, 1);//display x axis manipulator
+		SDL_DestroyTexture(Xdisplay);//destroy texture
+
+		sprintf(string, "%s(%s)^%.0f", yinv ? "1/" : "", yname, ypow);//format axis manipulator
+		SDL_Texture *Ydisplay = GetTextTexture(font_16, string, 0, 0, 0);//y axis manipulator
+		DrawText(Ydisplay, 0.8*ws, 1.0 / 36 + 1.0 / 24, NULL, 1);//display y axis manipulator
+		SDL_DestroyTexture(Ydisplay);//destroy texture
+
+		length = 5;
+		strcpy(xname, "X");
+		strcpy(yname, "Y");
+		Xdata = malloc(sizeof(double) * length);
+		Xdata[0] = 1;
+		Xdata[1] = 2;
+		Xdata[2] = 3;
+		Xdata[3] = 4;
+		Xdata[4] = 5;
+		Ydata = malloc(sizeof(double) * length);
+		Ydata[0] = 1;
+		Ydata[1] = 4;
+		Ydata[2] = 9;
+		Ydata[3] = 16;
+		Ydata[4] = 25;
+
+		Graph("hello", 0, 1.0/16 + 1.0/12, ws - (1.0/24), hs - (1.0/16 + 1.0/12), yname, xname, Xdata, Ydata, length, xpow, ypow, xinv, yinv);//test graph
+
 		displayd = 1;//set displayd
 		SDL_RenderPresent(renderer);//present rendered
 		break;
@@ -794,6 +860,17 @@ void Graph(const char* title, double x, double y, double w, double h, const char
 	SDL_DestroyTexture(Result);//destroy texture
 }
 
+void Reset(void){//reset data and data manipulator
+	xpow = 1;//reset data manipulator
+	ypow = 1;
+	xinv = 0;
+	yinv = 0;
+	free(Xdata);//free data
+	free(Ydata);
+	strcpy(xname, "X");//reset name to default
+	strcpy(yname, "Y");
+	length = 0;//reset length
+}
 
 
 
