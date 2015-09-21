@@ -347,13 +347,46 @@ void Clicked(void){//x and y positions clicked
 
 		break;
 	case GRAPH:
-		if (MouseY < 1.0 / 16){//if click is high enough
-			if (MouseX < 0.12*ws){//if clicked back
+		if (MouseY < 1.0 / 16 + 1.0 / 12){//if click is high enough
+			if (MouseX < 0.12*ws && MouseY < 1.0 / 16){//if clicked back
 				displaymode = DATA;//go back to data
 				displayd = 0;
 				break;
 			}
-			
+			else if (MouseX < 0.55*ws){//if on left
+				if (MouseY < 1.0 / 24){//if on top
+					xpow += 1;//increment x power by 1
+					displayd = 0;
+					break;
+				}
+				else if (MouseY < 1.0 / 24 + 1.0 / 16){//if on middle
+					xinv = !xinv;//flip inverse
+					displayd = 0;
+					break;
+				}
+				else {//if on bottom
+					if (xpow > 1) xpow -= 1;//decrement x power by 1
+					displayd = 0;
+					break;
+				}
+			}
+			else {//if on right
+				if (MouseY < 1.0 / 24){//if on top
+					ypow += 1;//increment y power by 1
+					displayd = 0;
+					break;
+				}
+				else if (MouseY < 1.0 / 24 + 1.0 / 16){//if on middle
+					yinv = !yinv;//flip inverse
+					displayd = 0;
+					break;
+				}
+				else {//if on bottom
+					if (ypow > 1) ypow -= 1;//decrement y power by 1
+					displayd = 0;
+					break;
+				}
+			}
 		}
 		displayd = 0;
 		break;
