@@ -527,6 +527,9 @@ SDL_Texture* GetTextTexture(TTF_Font* font, const char* text, int r, int g, int 
 	char texturetext[256];//text to display for texture
 	strcpy(texturetext, text);//copy text
 	strtok(texturetext, "\n");//remove newline
+	if (strcmp(texturetext, "") == 0){//if blank
+		strcpy(texturetext, " ");//add space to avoid error
+	}
 	SDL_Surface* surface = TTF_RenderText_Blended(font, texturetext, color);//rendere text as surface
 	if (surface == NULL){//if it could not be loaded
 		printf("could not load text: %s\n", TTF_GetError());//error message
@@ -802,6 +805,40 @@ void Draw(void){//draw/update screen
 		SDL_RenderClear(renderer);//clear screen
 		DrawBase();//draw background image
 
+		SDL_Texture *Texture = GetTextTexture(font_24, title, 0, 0, 0);//title
+		DrawText(Texture, 0.5*ws, 1.0 / 48, NULL, 1);//display title
+		SDL_DestroyTexture(Texture);//destroy texture
+
+		Texture = GetTextTexture(font_24, xname, 0, 0, 0);//xname
+		DrawText(Texture, 0.25*ws, ((1.0 / 48) * 3)*hs, NULL, 1);//display xname
+		SDL_DestroyTexture(Texture);//destroy texture
+
+		Texture = GetTextTexture(font_24, yname, 0, 0, 0);//yname
+		DrawText(Texture, 0.75*ws, ((1.0 / 48) * 3)*hs, NULL, 1);//display yname
+		SDL_DestroyTexture(Texture);//destroy texture
+
+		Texture = GetTextTexture(font_16, "Graph", 0, 0, 0);//graph button
+		DrawText(Texture, 0.92*ws, hs - 1.0 / 32, NULL, 1);//display graph button
+		SDL_DestroyTexture(Texture);//destroy texture
+
+		Texture = GetTextTexture(font_16, "Clear", 0, 0, 0);//clear button
+		DrawText(Texture, 0.08*ws, hs - 1.0 / 32, NULL, 1);//display clear button
+		SDL_DestroyTexture(Texture);//destroy texture
+
+		SDL_SetRenderDrawColor(renderer, 0, 0, 0, 255);//set color to black
+		SDL_RenderDrawLine(renderer, 0.5*ws*maxside, 1.0 / 24 * hs*maxside, 0.5*ws*maxside, 1.0 / 12 * hs*maxside + (1.0 / 24) * 20 * hs*maxside);//draw line in middle
+		int i;
+		for (i = 0; i < 40; i++){
+			if (!(i % 2)){
+				SDL_RenderDrawLine(renderer, 0, 1.0 / 12 * hs*maxside + (1.0 / 24)*(i / 2)*hs*maxside, ws*maxside, 1.0 / 12 * hs*maxside + (1.0 / 24)*(i / 2)*hs*maxside);//draw line for each row
+			}
+			Texture = GetTextTexture(font_24, data[i], 0, 0, 0);//clear button
+			DrawText(Texture, 0.25 * ws + (0.5 * ws) * (i%2), ((1.0/48) * 5 + (1.0/24)*(i/2))*hs, NULL, 1);//display clear button
+			SDL_DestroyTexture(Texture);//destroy texture
+		}
+		SDL_RenderDrawLine(renderer, 0, 1.0 / 12 * hs*maxside + (1.0 / 24)*20*hs*maxside, ws*maxside, 1.0 / 12 * hs*maxside + (1.0 / 24)*20*hs*maxside);//draw bottom line
+
+
 		displayd = 1;//set displayd
 		SDL_RenderPresent(renderer);//present rendered
 		break;
@@ -850,6 +887,7 @@ void Draw(void){//draw/update screen
 		length = 5;
 		strcpy(xname, "X");
 		strcpy(yname, "Y");
+		strcpy(title, "X vs Y");
 		Xdata = malloc(sizeof(double) * length);
 		Xdata[0] = 1;
 		Xdata[1] = 2;
@@ -863,7 +901,7 @@ void Draw(void){//draw/update screen
 		Ydata[3] = 16;
 		Ydata[4] = 25;
 
-		Graph("hello", 0, 1.0/16 + 1.0/12, ws - (1.0/24), hs - (1.0/16 + 1.0/12), xname, yname, Xdata, Ydata, length, xpow, ypow, xinv, yinv);//test graph
+		Graph(title, 0, 1.0/16 + 1.0/12, ws - (1.0/24), hs - (1.0/16 + 1.0/12), xname, yname, Xdata, Ydata, length, xpow, ypow, xinv, yinv);//test graph
 
 		displayd = 1;//set displayd
 		SDL_RenderPresent(renderer);//present rendered

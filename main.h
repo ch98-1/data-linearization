@@ -14,7 +14,7 @@
 #include "corwins.h"
 
 
-#define FULLLSCREEN //define if fullscreen
+//#define FULLLSCREEN //define if fullscreen
 //#define FPS //print out fps
 
 #ifdef FULLLSCREEN
@@ -72,6 +72,7 @@ double *Ydata;
 int length;//length of data
 char xname[256];//name of x and y data
 char yname[256];
+char title[256];//title of graph
 
 double scale;//scale up or down
 double xshift;//shift in x direction
@@ -79,7 +80,7 @@ double yshift;//shift in y direction
 double XShiftAll;//shift everything drawn in x direction
 double YShiftAll;//shift everything drawn in x direction
 
-
+char data[40][256];//
 
 uint32_t delay;//amount of delay for each frame
 double MouseX, MouseY;//x and y position of mouse / touch normalised
