@@ -491,13 +491,13 @@ void Clicked(void){//x and y positions clicked
 		else if (MouseY < hs - 1.0 / 16){
 			if (MouseX > 0.125*ws && MouseX < 0.375*ws){//if in right range for x data
 				SDL_StartTextInput();//start text input events
-				selected = (int)((MouseY*hs - 1.0/12) * 24)*2 + 4;//select title
+				selected = (int)((MouseY/hs - 1.0/12) * 24)*2 + 4;//select title
 				displayd = 0;
 				break;
 			}
 			else if (MouseX > 0.625*ws && MouseX < 0.875*ws){//if in right range for y data
 				SDL_StartTextInput();//start text input events
-				selected = (int)((MouseY*hs - 1.0 / 12) * 24) * 2 + 5;//select title
+				selected = (int)((MouseY/hs - 1.0 / 12) * 24) * 2 + 5;//select title
 				displayd = 0;
 				break;
 			}
@@ -955,7 +955,7 @@ void DrawTextSelected(SDL_Texture *texture, double x, double y, SDL_Rect *rect, 
 		char r, g, b, a;//rgba to fill
 		SDL_GetRenderDrawColor(renderer, &r, &g, &b, &a);//get color
 		SDL_SetRenderDrawColor(renderer, 0, 0, 255, 255);//set color to blue
-		SDL_RenderDrawLine(renderer, dest.x + dest.w, dest.y, dest.x + dest.w, dest.y + dest.h);//draw curser
+		SDL_RenderDrawLine(renderer, dest.x + dest.w, dest.y - YShiftAll * maxside, dest.x + dest.w, dest.y + dest.h - YShiftAll * maxside);//draw curser
 		SDL_SetRenderDrawColor(renderer, r, g, b, a);//reset color
 	}
 
@@ -993,6 +993,14 @@ void Draw(void){//draw/update screen
 	int i;
 	switch (displaymode){//switch for each thing to display
 	case DATA:
+#ifdef MOBILE
+		if (selected > 30){//if at bottom
+			YShiftAll = -0.3;//shift up
+		}
+		else {
+			YShiftAll = 0.0;// unshift
+		}
+#endif
 		if (displayd) break;
 		SDL_SetRenderDrawColor(renderer, 255, 255, 255, 255);//draw white
 		SDL_RenderClear(renderer);//clear screen

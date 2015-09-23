@@ -16,6 +16,7 @@
 
 #define FULLLSCREEN //define if fullscreen
 //#define FPS //print out fps
+//#define MOBILE //move up when using keybord
 
 #ifdef FULLLSCREEN
 #define WINDOWFLAGS SDL_WINDOW_OPENGL | SDL_WINDOW_FULLSCREEN | SDL_WINDOW_BORDERLESS | SDL_WINDOW_RESIZABLE    //fullscreen borderless resizable window 
