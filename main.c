@@ -491,13 +491,13 @@ void Clicked(void){//x and y positions clicked
 		else if (MouseY < hs - 1.0 / 16){
 			if (MouseX > 0.125*ws && MouseX < 0.375*ws){//if in right range for x data
 				SDL_StartTextInput();//start text input events
-				selected = (int)((MouseY - 1.0/12) * 24)*2 + 4;//select title
+				selected = (int)((MouseY*hs - 1.0/12) * 24)*2 + 4;//select title
 				displayd = 0;
 				break;
 			}
 			else if (MouseX > 0.625*ws && MouseX < 0.875*ws){//if in right range for y data
 				SDL_StartTextInput();//start text input events
-				selected = (int)((MouseY - 1.0 / 12) * 24) * 2 + 5;//select title
+				selected = (int)((MouseY*hs - 1.0 / 12) * 24) * 2 + 5;//select title
 				displayd = 0;
 				break;
 			}
