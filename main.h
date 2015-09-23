@@ -118,6 +118,7 @@ void DrawTextAngledCentered(SDL_Texture *texture, double x, double y, SDL_Rect *
 void DrawTextAngledCenteredEdge(SDL_Texture *texture, double x, double y, SDL_Rect *rect, int centerx, int centery, double deg);//draw rect of texture at x and y position normalised. Null rect for whole texture. set center to 1 to center to x and y. Draws texture at full size at an angle. Use x and y at other side
 void DrawIMG(SDL_Texture *texture, double x, double y, SDL_Rect *rect, double w, double h, int center);//draw rect of texture at x and y position normalised at scale from maxside. Null rect for whole texture. set center to 1 to center to x and y
 void Draw(void);//draw/update screen
-oid Graph(const char* title, double x, double y, double w, double h, const char* xn, const char* yn, const double* xd, const double* yd, int dl, double xp, double yp, int xin, int yin);//draw graph with title starting from x and y position normalised at scale from maxside, and with w and h width and height with data name of xn and yn, and data of xd, and yd with length of dl. data will be modified by raising it to the power of xp and yp and making it inverse if xp or yp is 1.void Reset(void);//reset data and data manipulator
+void Graph(const char* title, double x, double y, double w, double h, const char* xn, const char* yn, const double* xd, const double* yd, int dl, double xp, double yp, int xin, int yin);//draw graph with title starting from x and y position normalised at scale from maxside, and with w and h width and height with data name of xn and yn, and data of xd, and yd with length of dl. data will be modified by raising it to the power of xp and yp and making it inverse if xp or yp is 1.
+void Reset(void);//reset data and data manipulator
 
 #endif
