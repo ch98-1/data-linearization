@@ -86,8 +86,9 @@ int main(int argc, char *argv[]){
 	SDL_DestroyTexture(loading);//don't need this texture
 
 	//set initial values
-	displaymode = GRAPH;//reset display
+	displaymode = DATA;//reset display
 	Reset();//reset graph data
+	xshift = yshift = XShiftAll = YShiftAll = 0;//set shifts to 0
 
 	//load textures
 	PointIMG = GetTexture(POINT);//get point image
@@ -106,15 +107,15 @@ int main(int argc, char *argv[]){
 				break;//get out
 			case SDL_MOUSEBUTTONDOWN://when clicking down
 				if (e.button.which != SDL_TOUCH_MOUSEID){//if not touch event
-					MouseX = (double)(e.button.x) / maxside;//set x and y position of mouse from square normalised
-					MouseY = (double)(e.button.y) / maxside;
+					MouseX = (double)(e.button.x) / maxside - XShiftAll;//set x and y position of mouse from square normalised
+					MouseY = (double)(e.button.y) / maxside - YShiftAll;
 					Clicked();//run clicked function 
 					Draged();//run draged function 
 				}
 				break;//get out
 			case  SDL_FINGERDOWN://when finger touched
-				MouseX = (double)(e.tfinger.x) * ws;//set x and y position of mouse from square normalised
-				MouseY = (double)(e.tfinger.y) * hs;
+				MouseX = (double)(e.tfinger.x) * ws - YShiftAll;//set x and y position of mouse from square normalised
+				MouseY = (double)(e.tfinger.y) * hs - XShiftAll;
 				Clicked();//run clicked function 
 				Draged();//run draged function 
 				break;//get out
@@ -128,18 +129,72 @@ int main(int argc, char *argv[]){
 				}
 				break;//get out
 			case SDL_FINGERMOTION://when finger moved
-					MouseX = (double)(e.tfinger.x) * ws;//set x and y position of mouse from square normalised
-					MouseY = (double)(e.tfinger.y) * hs;
+					MouseX = (double)(e.tfinger.x) * ws - YShiftAll;//set x and y position of mouse from square normalised
+					MouseY = (double)(e.tfinger.y) * hs - XShiftAll;
 					Draged();//run draged function 
 				break;//get out
 			case SDL_WINDOWEVENT://when window was changed
 				Resize();//resize stuff
+				displayd = 0;//redraw
 				break;//get out
 			case SDL_TEXTINPUT://when text is inputed
+				if (selected == 0) SDL_StopTextInput();//stop text input if nothing is selected
+				else if (selected == 1) {//title
+					if (strlen(title) > 200) break;//if selected value get's too big
+					strcat(title, e.text.text);//get text
+					displayd = 0;//redraw everything
+				}
+				else if (selected == 2) {//x name
+					if (strlen(xname) > 200) break;//if selected value get's too big
+					strcat(xname, e.text.text);//get text
+					displayd = 0;//redraw everything
+				}
+				else if (selected == 3) {//y name
+					if (strlen(yname) > 200) break;//if selected value get's too big
+					strcat(yname, e.text.text);//get text
+					displayd = 0;//redraw everything
+				}
+				else{//data
+					if (strlen(data[selected - 4]) > 200) break;//if selected value get's too big
+					strcat(data[selected - 4], e.text.text);//get text
+					displayd = 0;//redraw everything
+				}
 				break;//get out
-			case SDL_TEXTEDITING://when editing text
-				break;
 			case SDL_KEYDOWN://key is down
+				if (e.key.keysym.sym == SDLK_BACKSPACE){//if backspace is pressed
+					if (selected == 0) SDL_StopTextInput();//stop text input if nothing is selected
+					else if (selected == 1) {//title
+						if (strlen(title) <= 0) break;//deleted too much
+						title[strlen(title) - 1] = '\0';//clear last caracter
+						displayd = 0;//redraw everything
+					}
+					else if (selected == 2) {//x name
+						if (strlen(xname) <= 0) break;//deleted too much
+						xname[strlen(xname) - 1] = '\0';//clear last caracter
+						displayd = 0;//redraw everything
+					}
+					else if (selected == 3) {//y name
+						if (strlen(yname) <= 0) break;//deleted too much
+						yname[strlen(yname) - 1] = '\0';//clear last caracter
+						displayd = 0;//redraw everything
+					}
+					else{//data
+						if (strlen(data[selected - 4]) <= 0) break;//deleted too much
+						data[selected - 4][strlen(data[selected - 4]) - 1] = '\0';//clear last caracter
+						displayd = 0;//redraw everything
+					}
+				}
+				else if (e.key.keysym.sym == SDLK_RETURN || e.key.keysym.sym == SDLK_RETURN2 || e.key.keysym.sym == SDLK_KP_ENTER){//if return is pressed
+					SDL_StopTextInput();//stop text input events
+					selected = 0;//unselect
+					displayd = 0;//redraw everything
+				}
+				else if (e.key.keysym.sym == SDLK_TAB){//if tab is pressed
+					SDL_StartTextInput();//start text input events
+					selected = selected++%43;//select next value
+					if (selected == 0) SDL_StopTextInput();//stop text input events
+					displayd = 0;//redraw everything
+				}
 				break;//get out
 			default://for everything else
 				//ignore event
@@ -344,17 +399,126 @@ void GetDisplay(void){//get display
 void Clicked(void){//x and y positions clicked
 	switch (displaymode){//switch for each thing to display
 	case DATA:
+		if (MouseY > hs - 1.0 / 16 && MouseY < 1.0*hs){//if click is low enough
+			if (MouseX < 0.12*ws){//if clicked clear
+				Reset();//reset data
+				displayd = 0;
+				break;
+			}
+			if (MouseX > 0.88*ws){//if clicked graph
+				displaymode = GRAPH;//go back to graph
+				SDL_StopTextInput();//stop text input events
+				selected = 0;//unselect
 
+				int i;
+				for (i = 0; i < 40; i++){//for each data
+					if (data[i][0] == '0' ||
+						data[i][0] == '1' ||
+						data[i][0] == '2' ||
+						data[i][0] == '3' ||
+						data[i][0] == '4' ||
+						data[i][0] == '5' ||
+						data[i][0] == '6' ||
+						data[i][0] == '7' ||
+						data[i][0] == '8' ||
+						data[i][0] == '9' || (
+						data[i][0] == '.' && (
+						data[i][1] == '0' ||
+						data[i][1] == '1' ||
+						data[i][1] == '2' ||
+						data[i][1] == '3' ||
+						data[i][1] == '4' ||
+						data[i][1] == '5' ||
+						data[i][1] == '6' ||
+						data[i][1] == '7' ||
+						data[i][1] == '8' ||
+						data[i][1] == '9'
+						)));//keep going if starting with a number
+					else {//if not starting with a number
+						break;
+					}
+				}
+				length = (i+1)/2;//set length to i + 1 divided by 2
+
+				Xdata = malloc(sizeof(double) * length);//allocate memory for length
+				Ydata = malloc(sizeof(double) * length);
+
+				for (i = 0; i < length; i++){//for each data
+					Xdata[i] = atof(data[2 * i]);//set x data
+					Ydata[i] = atof(data[2 * i + 1]);//set y data
+				}
+
+				displayd = 0;
+				break;
+			}
+		}
+		else if (MouseY < 1.0 / 24 && MouseY > 0.0){//if clicked on top
+			if (MouseX > 0.35*ws && MouseX < 0.65*ws){//if in right range for title
+				SDL_StartTextInput();//start text input events
+				selected = 1;//select title
+				displayd = 0;
+				break;
+			}
+			else{
+				SDL_StopTextInput();//stop text input events
+				selected = 0;//unselect title
+				YShiftAll = 0;//undo y shift
+				displayd = 0;
+				break;
+			}
+		}
+		else if (MouseY < 1.0/12*hs){//if clicked on titles
+			if (MouseX > 0.125*ws && MouseX < 0.375*ws){//if in right range for x name
+				SDL_StartTextInput();//start text input events
+				selected = 2;//select title
+				displayd = 0;
+				break;
+			}
+			else if (MouseX > 0.625*ws && MouseX < 0.875*ws){//if in right range for y name
+				SDL_StartTextInput();//start text input events
+				selected = 3;//select title
+				displayd = 0;
+				break;
+			}
+			else{
+				SDL_StopTextInput();//stop text input events
+				selected = 0;//unselect title
+				YShiftAll = 0;//undo y shift
+				displayd = 0;
+				break;
+			}
+		}
+		else if (MouseY < hs - 1.0 / 16){
+			if (MouseX > 0.125*ws && MouseX < 0.375*ws){//if in right range for x data
+				SDL_StartTextInput();//start text input events
+				selected = (int)((MouseY - 1.0/12) * 24)*2 + 4;//select title
+				displayd = 0;
+				break;
+			}
+			else if (MouseX > 0.625*ws && MouseX < 0.875*ws){//if in right range for y data
+				SDL_StartTextInput();//start text input events
+				selected = (int)((MouseY - 1.0 / 12) * 24) * 2 + 5;//select title
+				displayd = 0;
+				break;
+			}
+			else{
+				SDL_StopTextInput();//stop text input events
+				selected = 0;//unselect title
+				YShiftAll = 0;//undo y shift
+				displayd = 0;
+				break;
+			}
+		}
 		break;
 	case GRAPH:
-		if (MouseY < 1.0 / 16 + 1.0 / 12){//if click is high enough
-			if (MouseX < 0.12*ws && MouseY < 1.0 / 16){//if clicked back
+		if (MouseY < 1.0 / 16 + 1.0 / 12 && MouseY > 0.0){//if click is high enough
+			if (MouseX < 0.12*ws && MouseY < 1.0 / 16 && MouseY > 0.0){//if clicked back
 				displaymode = DATA;//go back to data
 				displayd = 0;
 				break;
 			}
 			else if (MouseX < 0.55*ws){//if on left
-				if (MouseY < 1.0 / 24){//if on top
+				if (MouseY < 1.0 / 24 && MouseY > 0.0){//if on top
 					xpow += 1;//increment x power by 1
 					displayd = 0;
 					break;
@@ -371,7 +535,7 @@ void Clicked(void){//x and y positions clicked
 				}
 			}
 			else {//if on right
-				if (MouseY < 1.0 / 24){//if on top
+				if (MouseY < 1.0 / 24 && MouseY > 0.0){//if on top
 					ypow += 1;//increment y power by 1
 					displayd = 0;
 					break;
@@ -766,8 +930,37 @@ SDL_RenderCopyEx(renderer, texture, rect, &dest, deg, NULL, SDL_FLIP_NONE);//dra
 
 
 
+void DrawTextSelected(SDL_Texture *texture, double x, double y, SDL_Rect *rect, int center, int sel){//draw rect of texture at x and y position normalised. Null rect for whole texture. set center to 1 to center to x and y. Draws texture at full size. Add curser at end if selected value matches
+	if (texture == NULL) {//if texture passed dosen't exist
+		texture = somethingwentwrong;//set texture to something went wrong
+	}
+	SDL_Rect dest;
+	int w, h, access;//value to fill up
+	long format;
+	SDL_QueryTexture(texture, &format, &access, &w, &h);//get text box size
+	dest.w = (int)w;//set width and height
+	dest.h = (int)h;
+	dest.x = (int)(x * maxside);//set x and y
+	dest.y = (int)(y * maxside);
 
+	if (center){
+		dest.x = dest.x - dest.w / 2;//set x and y centered to x and y
+		dest.y = dest.y - dest.h / 2;
+	}
 
+	dest.x += XShiftAll * maxside;//shift x and y
+	dest.y += YShiftAll * maxside;
+
+	if (selected == sel){//if selected
+		char r, g, b, a;//rgba to fill
+		SDL_GetRenderDrawColor(renderer, &r, &g, &b, &a);//get color
+		SDL_SetRenderDrawColor(renderer, 0, 0, 255, 255);//set color to blue
+		SDL_RenderDrawLine(renderer, dest.x + dest.w, dest.y, dest.x + dest.w, dest.y + dest.h);//draw curser
+		SDL_SetRenderDrawColor(renderer, r, g, b, a);//reset color
+	}
+
+	SDL_RenderCopy(renderer, texture, rect, &dest);//draw texture
+}
 
 
 
@@ -806,15 +999,15 @@ void Draw(void){//draw/update screen
 		DrawBase();//draw background image
 
 		SDL_Texture *Texture = GetTextTexture(font_24, title, 0, 0, 0);//title
-		DrawText(Texture, 0.5*ws, 1.0 / 48, NULL, 1);//display title
+		DrawTextSelected(Texture, 0.5*ws, 1.0 / 48, NULL, 1, 1);//display title
 		SDL_DestroyTexture(Texture);//destroy texture
 
 		Texture = GetTextTexture(font_24, xname, 0, 0, 0);//xname
-		DrawText(Texture, 0.25*ws, ((1.0 / 48) * 3)*hs, NULL, 1);//display xname
+		DrawTextSelected(Texture, 0.25*ws, ((1.0 / 48) * 3)*hs, NULL, 1, 2);//display xname
 		SDL_DestroyTexture(Texture);//destroy texture
 
 		Texture = GetTextTexture(font_24, yname, 0, 0, 0);//yname
-		DrawText(Texture, 0.75*ws, ((1.0 / 48) * 3)*hs, NULL, 1);//display yname
+		DrawTextSelected(Texture, 0.75*ws, ((1.0 / 48) * 3)*hs, NULL, 1, 3);//display yname
 		SDL_DestroyTexture(Texture);//destroy texture
 
 		Texture = GetTextTexture(font_16, "Graph", 0, 0, 0);//graph button
@@ -832,8 +1025,8 @@ void Draw(void){//draw/update screen
 			if (!(i % 2)){
 				SDL_RenderDrawLine(renderer, 0, 1.0 / 12 * hs*maxside + (1.0 / 24)*(i / 2)*hs*maxside, ws*maxside, 1.0 / 12 * hs*maxside + (1.0 / 24)*(i / 2)*hs*maxside);//draw line for each row
 			}
-			Texture = GetTextTexture(font_24, data[i], 0, 0, 0);//clear button
-			DrawText(Texture, 0.25 * ws + (0.5 * ws) * (i%2), ((1.0/48) * 5 + (1.0/24)*(i/2))*hs, NULL, 1);//display clear button
+			Texture = GetTextTexture(font_24, data[i], 0, 0, 0);// data
+			DrawTextSelected(Texture, 0.25 * ws + (0.5 * ws) * (i%2), ((1.0/48) * 5 + (1.0/24)*(i/2))*hs, NULL, 1, i + 4);//display data
 			SDL_DestroyTexture(Texture);//destroy texture
 		}
 		SDL_RenderDrawLine(renderer, 0, 1.0 / 12 * hs*maxside + (1.0 / 24)*20*hs*maxside, ws*maxside, 1.0 / 12 * hs*maxside + (1.0 / 24)*20*hs*maxside);//draw bottom line
@@ -883,23 +1076,6 @@ void Draw(void){//draw/update screen
 		SDL_Texture *Ydisplay = GetTextTexture(font_16, string, 0, 0, 0);//y axis manipulator
 		DrawText(Ydisplay, 0.8*ws, 1.0 / 36 + 1.0 / 24, NULL, 1);//display y axis manipulator
 		SDL_DestroyTexture(Ydisplay);//destroy texture
-
-		length = 5;
-		strcpy(xname, "X");
-		strcpy(yname, "Y");
-		strcpy(title, "X vs Y");
-		Xdata = malloc(sizeof(double) * length);
-		Xdata[0] = 1;
-		Xdata[1] = 2;
-		Xdata[2] = 3;
-		Xdata[3] = 4;
-		Xdata[4] = 5;
-		Ydata = malloc(sizeof(double) * length);
-		Ydata[0] = 1;
-		Ydata[1] = 4;
-		Ydata[2] = 9;
-		Ydata[3] = 16;
-		Ydata[4] = 25;
 
 		Graph(title, 0, 1.0/16 + 1.0/12, ws - (1.0/24), hs - (1.0/16 + 1.0/12), xname, yname, Xdata, Ydata, length, xpow, ypow, xinv, yinv);//test graph
 
@@ -1006,7 +1182,13 @@ void Reset(void){//reset data and data manipulator
 	free(Ydata);
 	strcpy(xname, "X");//reset name to default
 	strcpy(yname, "Y");
+	strcpy(title, "Title");
 	length = 0;//reset length
+	selected = 0;//unselect
+	int i;
+	for (i = 0; i < 40; i++){//for each data
+		strcpy(data[i], "");//clear data
+	}
 }
 
 

@@ -14,7 +14,7 @@
 #include "corwins.h"
 
 
-//#define FULLLSCREEN //define if fullscreen
+#define FULLLSCREEN //define if fullscreen
 //#define FPS //print out fps
 
 #ifdef FULLLSCREEN
@@ -28,7 +28,7 @@
 #endif
 
 
-#define TEXT_INPUT_SHIFT 0 //y shift when inputting text
+#define TEXT_INPUT_SHIFT 1 //shift to center when inputting text
 
 #define WINDOW_NAME "Data Linearization"
 #define DELAY 10 //default delay
@@ -78,9 +78,11 @@ double scale;//scale up or down
 double xshift;//shift in x direction
 double yshift;//shift in y direction
 double XShiftAll;//shift everything drawn in x direction
-double YShiftAll;//shift everything drawn in x direction
+double YShiftAll;//shift everything drawn in y direction
 
-char data[40][256];//
+char data[40][256];//array for data table
+
+int selected;//0 for unselected, 1 for title, 2 for x axis, 3 for y axis, 4 - 44 for data.
 
 uint32_t delay;//amount of delay for each frame
 double MouseX, MouseY;//x and y position of mouse / touch normalised
@@ -97,6 +99,7 @@ TTF_Font* font_32;
 TTF_Font* font_46;
 TTF_Font* font_64;
 
+#define SDL_RenderDrawLine(a, b, c, d, e) SDL_RenderDrawLine(a, b +	(XShiftAll * maxside), c +	(YShiftAll * maxside), d +	(XShiftAll * maxside), e +	(YShiftAll * maxside))
 
 int EventFilter(void* userdata, SDL_Event* e);//event filter
 void Quit(void);//quit everything
@@ -109,6 +112,7 @@ TTF_Font* GetFont(const char *file, int size);//get font from file
 SDL_Texture* GetTextTexture(TTF_Font* font, const char* text, int r, int g, int b);//make texture from font text and rgb
 void DrawBase(void);//draw basic stuff
 void DrawText(SDL_Texture *texture, double x, double y, SDL_Rect *rect, int center);//draw rect of texture at x and y position normalised. Null rect for whole texture. set center to 1 to center to x and y. Draws texture at full size
+void DrawTextSelected(SDL_Texture *texture, double x, double y, SDL_Rect *rect, int center, int sel);//draw rect of texture at x and y position normalised. Null rect for whole texture. set center to 1 to center to x and y. Draws texture at full size. Add curser at end if selected value matches
 void DrawTextAngled(SDL_Texture *texture, double x, double y, SDL_Rect *rect, int center, double deg);//draw rect of texture at x and y position normalised. Null rect for whole texture. set center to 1 to center to x and y. Draws texture at full size at an angle
 void DrawTextAngledCentered(SDL_Texture *texture, double x, double y, SDL_Rect *rect, int centerx, int centery, double deg);//draw rect of texture at x and y position normalised. Null rect for whole texture. set center to 1 to center to x and y. Draws texture at full size at an angle
 void DrawTextAngledCenteredEdge(SDL_Texture *texture, double x, double y, SDL_Rect *rect, int centerx, int centery, double deg);//draw rect of texture at x and y position normalised. Null rect for whole texture. set center to 1 to center to x and y. Draws texture at full size at an angle. Use x and y at other side
