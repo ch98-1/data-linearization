@@ -1187,7 +1187,9 @@ void Reset(void){//reset data and data manipulator
 	xinv = 0;
 	yinv = 0;
 	free(Xdata);//free data
+	Xdata = NULL;
 	free(Ydata);
+	Ydata = NULL;
 	strcpy(xname, "X");//reset name to default
 	strcpy(yname, "Y");
 	strcpy(title, "Title");
