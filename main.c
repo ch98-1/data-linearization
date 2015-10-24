@@ -1161,7 +1161,7 @@ void Graph(const char* title, double x, double y, double w, double h, const char
 		//plot points
 		DrawIMG(PointIMG, (x + 1.0 / 24) + (xdata[i] / maxX) * (w - (1.0 / 24)) , (y + h - (1.0 / 24) * 2) - (ydata[i] / maxY)  * (h - (1.0 / 24) * 3) , NULL, POINT_SIZE, POINT_SIZE, 1);//draw point
 	}
-	sprintf(name, "R^2 = %.5f           %s(%s)^%.0f = %.3f(%s(%s)^%.0f)%+.3f", acc, yin ? "1/" : "", yn, yp, resulta, xin ? "1/" : "", xn, xp, resultb);//format equations
+	sprintf(name, "R^2 = %.5f           %s(%s)^%.0f = %.3e(%s(%s)^%.0f)%+.3e", acc, yin ? "1/" : "", yn, yp, resulta, xin ? "1/" : "", xn, xp, resultb);//format equations
 	SDL_Texture *Result = GetTextTexture(font_24, name, 0, 0, 0);//equations
 	DrawText(Result, x + 0.5*w, y + h - 1.0 / 24 / 2, NULL, 1);//display equations
 	SDL_DestroyTexture(Result);//destroy texture
@@ -1170,12 +1170,12 @@ void Graph(const char* title, double x, double y, double w, double h, const char
 	DrawText(Zero, x + 1.0 / 48, y + h - ((1.0 / 48) * 3), NULL, 1);//display zero
 	SDL_DestroyTexture(Zero);//destroy texture
 
-	sprintf(name, "%.3f", maxX);//format axis value
+	sprintf(name, "%.3e", maxX);//format axis value
 	SDL_Texture *XM = GetTextTexture(font_24, name, 0, 0, 0);//x axis value
 	DrawTextAngledCenteredEdge(XM, x + w, y + h - (1.0 / 72) , NULL, 0, 1, 0);//display x axis value
 	SDL_DestroyTexture(XM);//destroy texture
 
-	sprintf(name, "%.3f", maxY);//format axis value
+	sprintf(name, "%.3e", maxY);//format axis value
 	SDL_Texture *YM = GetTextTexture(font_24, name, 0, 0, 0);//y axis value
 	DrawTextAngledCentered(YM, x + (1.0 / 24 / 2), (y + 1.0 / 24), NULL, 1, 0, 270);//display y axis value sideways
 	SDL_DestroyTexture(YM);//destroy texture
